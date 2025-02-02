@@ -91,6 +91,7 @@ export default function Index() {
                                 fontSize: 14,
                                 shadowOpacity: 0.3
                             }}
+
                             placeholder="Enter Your Email Address"
                         />
                         <TextInput
@@ -109,6 +110,7 @@ export default function Index() {
                                 fontSize: 14,
                                 shadowOpacity: 0.3
                             }}
+                            secureTextEntry={true}
                             placeholder="Enter Your Password"
                         />
                     </View>

@@ -1,6 +1,7 @@
 import { Image, ScrollView, Text, View, ActivityIndicator } from "react-native";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Sliders from "@/slider/slider";
 
 type Data = {
     bookId : string
@@ -34,11 +35,10 @@ export default function Book_details() {
     }
 
     return (
-
-            <View style={{
+        <View style={{
                 flex:1
             }}>
-                <View>
+            <View>
                     <Image
                         style={{
                             width: '100%', // Ensure the image stretches across the screen
