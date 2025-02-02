@@ -1,7 +1,10 @@
-import { Image, ScrollView, Text, View, ActivityIndicator } from "react-native";
+import {Image, ScrollView, Text, View, ActivityIndicator, Button, TouchableOpacity} from "react-native";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Sliders from "@/slider/slider";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {router} from "expo-router";
 
 type Data = {
     bookId : string
@@ -49,6 +52,32 @@ export default function Book_details() {
                         }}
                         source={require('../../assets/images/2.jpg')}
                     />
+                <View style={{
+                    position:'absolute',
+                    right:10,
+                    width:50,
+                    height:30,
+                    padding:0.3,
+                    backgroundColor:'#225d68',
+                    top:4,
+                    borderRadius:25,
+                    borderColor:'white',
+                    borderWidth:1
+
+                }}>
+                    <TouchableOpacity
+                        onPress={()=>{
+                            AsyncStorage.clear;
+                            router.push('/');
+                            alert("You have been logged out successfully")
+                        }}
+                    ><Text style={{
+                       textAlign:'center',
+                        marginTop:4,
+                        fontWeight:'bold'
+                    }}><Ionicons name="log-out" size={24} color="white" /></Text></TouchableOpacity>
+                </View>
+
                     <View style={{
                         position: 'absolute',
                         top: 50,
