@@ -1,26 +1,22 @@
-import {ScrollView, Text, View} from "react-native";
-import {Link} from "expo-router";
+import { ScrollView, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwt_decode from "jwt-decode";
-import {useEffect, useState} from "react";
+import * as jwt_decode from 'jwt-decode';
+import { useEffect, useState } from "react";
 import axios from "axios";
-import {awaitExpression} from "@babel/types";
 
-
-export default  function List(){
-    const [isBarrowData, setIsBarrowData] = useState(false);
+export default function List() {
     const [barrowData, setBarrowData] = useState([]);
-    const [decoded, setDecoded] = useState(null);
-    const [token, setToken] = useState(null);
+    const [decoded, setDecoded] = useState(null); // Initialize decoded as null
+    const [isBarrow, setIsBarrow] = useState(false);
 
     useEffect(() => {
         const fetchToken = async () => {
             try {
                 const storedToken = await AsyncStorage.getItem("token");
+                console.log(storedToken);
                 if (storedToken) {
-                    const decodedToken = jwt_decode.jwtDecode(storedToken);  // <-- Fixed the decode
+                    const decodedToken = jwt_decode.jwtDecode(storedToken); // Use jwt_decode directly
                     setDecoded(decodedToken);
-                    setToken(storedToken);  // <-- Save the token to display it
                     console.log("Decoded Token:", decodedToken);
                 } else {
                     console.log("No token found");
@@ -31,72 +27,105 @@ export default  function List(){
         };
 
         fetchToken();
-    }, []);
+    }, []); // This effect runs only once when the component mounts
 
     useEffect(() => {
-        if (decoded && !isBarrowData) {  // <-- Ensure decoded is not null before accessing email
-            axios.get(`http://192.168.1.144:3030/barrow/${decoded.email}`)
-                .then((res) => {
+        const fetchBarrowData = async () => {
+            if (decoded && decoded.email && !isBarrow) {
+                try {
+                    const response = await axios.get(`http://192.168.1.144:3030/barrow/${decoded.email}`);
                     console.log("*********");
-                    console.log(res.data);
+                    console.log(response.data);
                     console.log("*********");
-                    setBarrowData(res.data);
-                    setIsBarrowData(true);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+                    setBarrowData(response.data);
+                    setIsBarrow(true); // Ensure data is only fetched once
+                } catch (err) {
+                    console.log("Error fetching barrow data:", err);
+                }
+            }
+        };
+
+        // Fetch data when decoded token is available
+        if (decoded) {
+            fetchBarrowData();
         }
-    }, [decoded, isBarrowData]);  // <-- Add decoded as a dependency
+    }, [decoded, isBarrow]); // Trigger when `decoded` changes or `isBarrow` is updated
 
-
-
-
-    return(
-        <>
-            <View style={{backgroundColor:'white', flex:1}}> <ScrollView style={{
-                backgroundColor: 'white',
-                padding: 15,
-                borderRadius: 10,
-                marginVertical: 10,
-                marginHorizontal: 20,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 5,
-                elevation: 3,
-                height: "auto"
-            }}>
-
-
-                    <View style={{
-                        backgroundColor: '#fff',
-                        borderRadius: 10,
-                        padding: 20,
-                        marginBottom: 15,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 4,
-                        elevation: 5,
-                        borderWidth: 1,
-                        borderColor: '#eee'
-                    }}>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Title: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Book ID: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Description: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Author: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Email: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>First Name: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Last Name: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Address: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5, width: '48%' }}>Start Date: <Text style={{ fontWeight: 'normal' }}>shanuka</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: '#083D77', width: '48%' }}>End Date: <Text style={{ fontWeight: 'normal' }}>0</Text></Text>
-                    </View>
-
-
+    return (
+        <View style={{ backgroundColor: 'white', flex: 1 }}>
+            <ScrollView
+                style={{
+                    backgroundColor: 'white',
+                    padding: 15,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                    marginHorizontal: 20,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 5,
+                    elevation: 3,
+                    height: "auto",
+                }}
+            >
+                {barrowData.length > 0 ? (
+                    barrowData.map((data, index) => (
+                        <View
+                            key={index}
+                            style={{
+                                backgroundColor: '#fff',
+                                borderRadius: 10,
+                                padding: 20,
+                                marginBottom: 15,
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.2,
+                                shadowRadius: 4,
+                                elevation: 5,
+                                borderWidth: 1,
+                                borderColor: '#eee',
+                            }}
+                        >
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Title: <Text style={{ fontWeight: 'normal' }}>{data.title}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Book ID: <Text style={{ fontWeight: 'normal' }}>{data.bookId}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Description: <Text style={{ fontWeight: 'normal' }}>{data.description}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Author: <Text style={{ fontWeight: 'normal' }}>{data.author}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Email: <Text style={{ fontWeight: 'normal' }}>{data.email}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                First Name: <Text style={{ fontWeight: 'normal' }}>{data.firstName}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Last Name: <Text style={{ fontWeight: 'normal' }}>{data.lastName}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Address: <Text style={{ fontWeight: 'normal' }}>{data.address}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77', marginBottom: 5 }}>
+                                Start Date: <Text style={{ fontWeight: 'normal' }}>
+                                {new Date(data.startDate).toLocaleDateString()}
+                            </Text>
+                            </Text>
+                            <Text style={{ fontWeight: 'bold', color: '#083D77' }}>
+                                End Date: <Text style={{ fontWeight: 'normal' }}>
+                                {new Date(data.endDate).toLocaleDateString()}
+                            </Text>
+                            </Text>
+                        </View>
+                    ))
+                ) : (
+                    <Text>No barrow data available</Text>
+                )}
             </ScrollView>
-            </View>
-        </>
-    )
+        </View>
+    );
 }

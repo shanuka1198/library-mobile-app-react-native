@@ -12,7 +12,7 @@ export default function StackLayout(){
                     tabBarIcon:({color, size})=>(<Entypo name="book" size={size} color={color} />)
                 }} />
                 <Tabs.Screen name='list' options={{
-                    title:"Book List",
+                    title:"Borrow List",
                     tabBarIcon:({color, size})=>(<Entypo name="open-book" size={size} color={color} />)
                 }} />
             </Tabs>

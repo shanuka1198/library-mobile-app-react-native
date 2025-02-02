@@ -1,10 +1,9 @@
 import { View, Text, Button, TextInput, Image } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import {useContext, useState} from "react";
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwt_decode from "jwt-decode";
-
+import * as jwt_decode from 'jwt-decode';
 
 export default function Index() {
     const router = useRouter();
@@ -13,7 +12,7 @@ export default function Index() {
     const [password, setPassword] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
-    const jwt_decode = require('jwt-decode');
+
 
 
     const login = async () => {
@@ -29,7 +28,7 @@ export default function Index() {
             const token = response.data.token; // Assuming the token is in response.data.token
             await AsyncStorage.setItem("token", token);
             const decoded: string = jwt_decode.jwtDecode(token,{ complete: true });
-            // Check user role and navigate accordingly
+
             if (decoded.role && decoded.role.includes("Client")) {
                 router.push("/Book_details"); // Redirect to home if role is 'Client'
             } else {
